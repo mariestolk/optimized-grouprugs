@@ -1,0 +1,14 @@
+/target/
+/tsne-core/target/
+/src/main/java/dbvis/motionrugs/grouprugs/tgs/testing/
+
+# Ending with 
+*.csv
+*.png
+*.txt
+*.json
+*.md
+*.xml
+*.py
+*.pyc
+*.log
