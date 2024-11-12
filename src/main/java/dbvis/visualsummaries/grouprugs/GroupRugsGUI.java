@@ -38,6 +38,7 @@ import dbvis.visualsummaries.grouprugs.tgs.Utils;
 import dbvis.visualsummaries.grouprugs.tgs.maximalgroups.*;
 import dbvis.visualsummaries.grouprugs.tgs.reebgraph.ReebGraph;
 import dbvis.visualsummaries.grouprugs.visualization.PNGWriter;
+import dbvis.visualsummaries.grouprugs.visualization.SaveResults;
 import dbvis.visualsummaries.grouprugs.visualization.etpmapperstrategies.FuzzyPositionMapper;
 import dbvis.visualsummaries.grouprugs.visualization.etpmapperstrategies.MapperUtils;
 import dbvis.visualsummaries.grouprugs.visualization.etpmapperstrategies.MotionLinesPositionMapper;
@@ -283,7 +284,7 @@ public class GroupRugsGUI extends javax.swing.JFrame {
                                 m);
 
                         boolean MR;
-                        if (selectedImageStrategy == "MotionRugs") {
+                        if (selectedImageStrategy.equals("MotionRugs")) {
                             MR = true;
                         } else {
                             MR = false;
@@ -339,6 +340,13 @@ public class GroupRugsGUI extends javax.swing.JFrame {
 
                         // set imagePanel to right dimensions
                         imagePanel.setPreferredSize(new Dimension(awtImage.getWidth(), awtImage.getHeight()));
+
+                        String directoryname = selectedDataset + "_"
+                                + selectedStrategy + "_"
+                                + selectedImageStrategy + "_eps"
+                                + epsilon;
+
+                        SaveResults.saveResults(awtImage, etpMap, directoryname);
 
                         // Display awtImage in the imagePanel
                         imagePanel.removeAll();
