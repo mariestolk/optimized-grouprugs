@@ -144,7 +144,7 @@ public class QPPositionMapper {
                 components, IDToGroupMap);
 
         determineAboveBelowComps(compToData, componentOrders);
-        initializeStartPositions(compToData);
+        initializeStartPositionsTest(compToData);
         solveForceDirectedLayout(compToData);
 
     }
@@ -231,23 +231,28 @@ public class QPPositionMapper {
 
         }
 
+        int problems = 0;
+
         for (CompGroupData cgd : compToData.values()) {
 
-            // System.out.println("Component: " + cgd.getComp().getId());
-
+            System.out.println("Component: " + cgd.getComp().getId());
+            //
             // get below components
             List<CompGroupData> belowComps = cgd.getCompBelowList();
             List<CompGroupData> aboveComps = cgd.getCompAboveList();
 
             for (CompGroupData above : aboveComps) {
+
                 // if above is contained in belowComps
                 if (belowComps.contains(above)) {
 
+                    problems += 1;
+
                     // remove above from belowComps
-                    belowComps.remove(above);
+                    // belowComps.remove(above);
 
                     // remove cgd from above's belowComps
-                    above.getCompAboveList().remove(cgd);
+                    // above.getCompAboveList().remove(cgd);
                 }
 
             }
@@ -259,6 +264,8 @@ public class QPPositionMapper {
             }
 
         }
+
+        System.out.println("Problems: " + problems);
 
         // printCompOrder(componentOrders);
 
@@ -311,16 +318,29 @@ public class QPPositionMapper {
                         HEIGHT - cgd.getComp().getEntities().size() - 10);
                 int lb = Math.max(cgd.getStartPosition(), 10);
 
-                double f_r = 1;
-                double f_o = 1;
-                double f_e = 1 / HEIGHT;
+                // For the upperbound, determine group above that is closest to the current
+                // group
+                for (CompGroupData above : aboveComps) {
+                    int abovePos = above.getStartPosition() + above.getComp().getEntities().size();
+                    if (abovePos > ub) {
+                        ub = abovePos;
+                    }
+
+                }
+
+                // For the lowerbound, determine group below that is closest to the current
+                // group
+                for (CompGroupData below : belowComps) {
+                    int belowPos = below.getStartPosition();
+                    if (belowPos < lb) {
+                        lb = belowPos;
+                    }
+
+                }
 
                 double encoded_Pos = cgd.getProjPosition() - cgd.getComp().getEntities().size() / 2;
 
                 double alpha_i = EquationSolver.solveAlpha(
-                        f_r,
-                        f_o,
-                        f_e,
 
                         aboveComps,
                         belowComps,
@@ -440,7 +460,73 @@ public class QPPositionMapper {
 
         }
     }
-    
+
+    /**
+     * Sets start positions of the components based on the order of the maximal
+     * groups in the last layer they are in.
+     * 
+     * @param compToData The list of CompGroupData objects.
+     */
+    private void initializeStartPositionsTest(HashMap<Component, CompGroupData> compToData) {
+
+        int spacing = 5;
+
+        for (MGOrder orderChange : orderedMGroups) {
+
+            int startPosition = 10;
+
+            List<Component> componentsInOrderChange = getComponentsInOrderChange(orderChange);
+            boolean[] visited = new boolean[orderChange.getOrder().size()];
+
+            for (Integer maxGroupID : orderChange.getOrder()) {
+
+                if (visited[orderChange.getOrder().indexOf(maxGroupID)]) {
+                    continue;
+                }
+
+                // get maximal group corresponding to the ID
+                MaximalGroup maxGroup = IDToGroupMap.get(maxGroupID);
+
+                // get the component that contains the maximal group
+                Component comp = null;
+                for (Component c : componentsInOrderChange) {
+                    if (c.getEntities().containsAll(maxGroup.getEntities())) {
+                        comp = c;
+
+                        // Set components that are visited to true
+                        int i = orderChange.getOrder().indexOf(maxGroupID);
+                        for (int j = i; j < orderChange.getOrder().size(); j++) {
+                            if (c.getEntities()
+                                    .containsAll(IDToGroupMap.get(orderChange.getOrder().get(j)).getEntities())) {
+                                visited[j] = true;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                // Continue if component is null
+                if (comp == null) {
+                    continue;
+                }
+
+                CompGroupData compData = compToData.get(comp);
+
+                // set the start position of the component
+                if (compData.getStartPosition() == -1) {
+                    compData.setStartPosition(startPosition);
+                    startPosition += comp.getEntities().size() + spacing;
+                }
+
+            }
+
+        }
+
+    }
+
     /**
      * Sets start positions of the components based on the order of the maximal
      * groups in the last layer they are in.

@@ -311,13 +311,13 @@ public class MapperUtils {
                                 omega = 1;
 
                             }
-                            
+
                             omega = omega * omega * (3 - 2 * omega);
                             omega *= 0.0;
 
                             int yInt = (int) Math.floor(omega * yProjection + (1 - omega) * yBézier);
                             entityToPosition[i][entity] = yInt;
-  
+
                         }
 
                     }
@@ -511,7 +511,7 @@ public class MapperUtils {
 
     /**
      * Determines whether the current frame should be skipped during MotionRug
-     * drawingfor drawing motion lines later.
+     * drawing for drawing motion lines later.
      * 
      * @param component The current maximal group
      * @param frame     The current frame
