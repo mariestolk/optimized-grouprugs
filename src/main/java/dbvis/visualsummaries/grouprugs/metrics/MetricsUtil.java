@@ -159,6 +159,10 @@ public class MetricsUtil {
     private static void saveMetrics(HashMap<String, double[]> metrics, String datasetName, String stratid,
             String imageStrat, double epsilon) {
 
+        if (stratid == "ClairvoyantPCStrategy") {
+            stratid = "PrincipalComponentStrategy";
+        }
+
         String filename = "plots/metrics/" + datasetName + "_" + stratid + "_" + imageStrat + "_" + epsilon + ".txt";
 
         try {

@@ -53,6 +53,12 @@ public class MapperUtils {
             case "PrincipalComponentStrategy":
                 projfile = new File(projfolder + "/" + dsname + "_First principal component_1D.csv");
                 break;
+            case "Clairvoyant PC chasing":
+                projfile = new File(projfolder + "/" + dsname + "_Clairvoyant PC chasing 0.5263157894736842_1D.csv");
+                break;
+            case "ClairvoyantPCStrategy":
+                projfile = new File(projfolder + "/" + dsname + "_Clairvoyant PC chasing 0.5263157894736842_1D.csv");
+                break;
             default:
                 System.out.println("ERROR: Selected " + stratid + " strategy not found");
                 break;

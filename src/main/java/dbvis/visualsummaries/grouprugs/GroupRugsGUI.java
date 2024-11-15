@@ -36,8 +36,10 @@ import dbvis.visualsummaries.grouprugs.metrics.Pearsons;
 import dbvis.visualsummaries.grouprugs.tgs.TGS;
 import dbvis.visualsummaries.grouprugs.tgs.Utils;
 import dbvis.visualsummaries.grouprugs.tgs.maximalgroups.*;
+import dbvis.visualsummaries.grouprugs.tgs.reebgraph.PostProcessing;
 import dbvis.visualsummaries.grouprugs.tgs.reebgraph.ReebGraph;
 import dbvis.visualsummaries.grouprugs.visualization.PNGWriter;
+import dbvis.visualsummaries.grouprugs.visualization.Postprocessing;
 import dbvis.visualsummaries.grouprugs.visualization.SaveResults;
 import dbvis.visualsummaries.grouprugs.visualization.etpmapperstrategies.FuzzyPositionMapper;
 import dbvis.visualsummaries.grouprugs.visualization.etpmapperstrategies.MapperUtils;
@@ -46,7 +48,7 @@ import dbvis.visualsummaries.grouprugs.visualization.etpmapperstrategies.MotionR
 import dbvis.visualsummaries.grouprugs.visualization.etpmapperstrategies.QPPositionMapper;
 import dbvis.visualsummaries.grouprugs.visualization.groupselectionstrategies.ComponentSelectionStrategy;
 import dbvis.visualsummaries.strategies.ClairvoyantPCStrategy;
-import dbvis.visualsummaries.strategies.PrincipalComponentStrategy;
+// import dbvis.visualsummaries.strategies.PrincipalComponentStrategy;
 import dbvis.visualsummaries.strategies.SammonMappingStrategy;
 import dbvis.visualsummaries.strategies.Strategy;
 import dbvis.visualsummaries.strategies.TSNESimpleStrategy;
@@ -72,7 +74,8 @@ public class GroupRugsGUI extends javax.swing.JFrame {
     private JComboBox<String> datasetComboBox;
 
     // Ordering Strategies have to be instantiated here and added below where marked
-    private PrincipalComponentStrategy principalcomponentstrategy = new PrincipalComponentStrategy();
+    // private PrincipalComponentStrategy principalcomponentstrategy = new
+    // PrincipalComponentStrategy();
     private SammonMappingStrategy sammonmappingstrategy = new SammonMappingStrategy();
     private TSNESimpleStrategy tsnesimplestrategy = new TSNESimpleStrategy();
     private UMAPStrategy umapstrategy = new UMAPStrategy();
@@ -136,11 +139,12 @@ public class GroupRugsGUI extends javax.swing.JFrame {
         // Strategy
         JLabel strategyLabel = new JLabel("Select Strategy:");
         strategyComboBox = new JComboBox<>();
-        strategyComboBox.addItem("PrincipalComponentStrategy");
+        // strategyComboBox.addItem("PrincipalComponentStrategy");
         strategyComboBox.addItem("UMAPStrategy");
         strategyComboBox.addItem("Stable sammon mapping");
         strategyComboBox.addItem("t-SNE (simple)");
-        // strategyComboBox.addItem("Run All Metrics");
+        strategyComboBox.addItem("ClairvoyantPCStrategy");
+        strategyComboBox.addItem("Run All Metrics");
 
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -229,7 +233,7 @@ public class GroupRugsGUI extends javax.swing.JFrame {
         comboPanel.add(metricsCheckBox, gbc);
 
         // Automatically set to checked
-        metricsCheckBox.setSelected(true);
+        metricsCheckBox.setSelected(false);
 
         // Create panel for image
         JPanel imagePanel = new JPanel(new BorderLayout());
@@ -520,6 +524,8 @@ public class GroupRugsGUI extends javax.swing.JFrame {
                 break;
         }
 
+        etpMap = Postprocessing.postProcess(filteredComponents, etpMap);
+
         return etpMap;
 
     }
@@ -546,13 +552,13 @@ public class GroupRugsGUI extends javax.swing.JFrame {
         };
 
         Set<String> largeDatasetStrats = new HashSet<String>();
-        largeDatasetStrats.add("PrincipalComponentStrategy");
+        largeDatasetStrats.add("ClairvoyantPCStrategy");
         largeDatasetStrats.add("UMAPStrategy");
         largeDatasetStrats.add("Stable sammon mapping");
 
         // Add strategies to Set
         Set<String> smallDatasetStrats = new HashSet<String>();
-        smallDatasetStrats.add("PrincipalComponentStrategy");
+        smallDatasetStrats.add("ClairvoyantPCStrategy");
         smallDatasetStrats.add("UMAPStrategy");
         smallDatasetStrats.add("Stable sammon mapping");
         smallDatasetStrats.add("t-SNE (simple)");
@@ -695,7 +701,7 @@ public class GroupRugsGUI extends javax.swing.JFrame {
             BufferedImage image) {
 
         HashMap<String, String> stratDict = new HashMap<String, String>();
-        stratDict.put("PrincipalComponentStrategy", "PCA");
+        // stratDict.put("PrincipalComponentStrategy", "PCA");
         stratDict.put("Stable UMAPStrategy", "UMAP");
         stratDict.put("UMAPStrategy", "UMAP");
         stratDict.put("Stable Sammon Mapping", "SAM");
@@ -753,8 +759,8 @@ public class GroupRugsGUI extends javax.swing.JFrame {
     public Strategy getSelectedStrategy(String stratName) {
 
         switch (stratName) {
-            case "PrincipalComponentStrategy":
-                return principalcomponentstrategy;
+            // case "PrincipalComponentStrategy":
+            // return principalcomponentstrategy;
             case "UMAPStrategy":
                 return umapstrategy;
             case "ClairvoyantPCStrategy":
