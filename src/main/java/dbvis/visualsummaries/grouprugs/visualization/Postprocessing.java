@@ -15,7 +15,7 @@ public class Postprocessing {
      * @param components The maximal groups
      * @param etpMap     The entityToPosition map
      */
-    public static void postProcess(List<Component> components, Integer[][] etpMap) {
+    public static Integer[][] postProcess(List<Component> components, Integer[][] etpMap) {
 
         for (Component component : components) {
 
@@ -73,6 +73,8 @@ public class Postprocessing {
                 } // else do nothing
             }
         }
+
+        return etpMap;
     }
 
 }
