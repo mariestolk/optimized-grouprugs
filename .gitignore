@@ -1,5 +1,6 @@
 /target/
 /tsne-core/target/
+/plots/
 /src/main/java/dbvis/motionrugs/grouprugs/tgs/testing/
 
 # Ending with 
@@ -11,3 +12,4 @@
 *.py
 *.pyc
 *.log
+*.ipynb
