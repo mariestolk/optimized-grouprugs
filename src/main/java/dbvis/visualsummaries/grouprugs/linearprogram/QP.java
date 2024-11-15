@@ -40,7 +40,7 @@ public class QP {
       GRBEnv env = new GRBEnv("ecm.log");
       GRBModel model = new GRBModel(env);
 
-      Map<String, Boolean> weightMap = createWeightMap(mlcmtc);
+      Map<String, Double> weightMap = createWeightMap(mlcmtc);
       System.out.println("Weight map created.");
 
       // =========================================================================
@@ -167,9 +167,15 @@ public class QP {
    * @return The weight map
    * @throws GRBException
    */
-  private static Map<String, Boolean> createWeightMap(MLCMGraph mlcmtc) {
+  private static Map<String, Double> createWeightMap(MLCMGraph mlcmtc) {
 
-    Map<String, Boolean> weightMap = new HashMap<>();
+    // Initialize weights
+    double withinCompWeight = 0.001; // Lower cost for crossings within the same component
+    double outsideCompWeight = 1; // Higher cost for crossings outside components or between different
+                                  // components
+    double transitionInitiatedWeight = 0.05; // Lower cost if one of the grouplines is in transition
+
+    Map<String, Double> weightMap = new HashMap<>();
 
     List<Integer> layers = mlcmtc.getLayers();
 
@@ -205,11 +211,29 @@ public class QP {
             MLCMVertex uNext = mlcmtc.getVertex(groupID1_2Str);
             MLCMVertex vNext = mlcmtc.getVertex(groupID2_2Str);
 
+            // Condition: if u and v share a parent in layer r and in layer r+1, assign low
+            // weight
             boolean p_uv = u.getParent() == v.getParent();
             boolean p_uNextvNext = uNext.getParent() == vNext.getParent();
 
+            // Condition: if either groupline u or v (or both) are in transition, assign
+            // lower value
+            boolean sameChildrenU = u.getParent().getChildGroupIds().equals(uNext.getParent().getChildGroupIds());
+            boolean sameChildrenV = v.getParent().getChildGroupIds().equals(vNext.getParent().getChildGroupIds());
+
+            double weight;
+
+            // Check which weight is appropriate
+            if (p_uv && p_uNextvNext) { // same component in current and next layer?
+              weight = withinCompWeight;
+            } else if (!sameChildrenU || !sameChildrenV) { // both remain in MotionRugs in current and next layer?
+              weight = transitionInitiatedWeight;
+            } else {
+              weight = outsideCompWeight;
+            }
+
             // Create weight map
-            weightMap.put("w_" + groupID1_1 + "_" + groupID2_1 + "_" + layer, p_uv && p_uNextvNext);
+            weightMap.put("w_" + groupID1_1 + "_" + groupID2_1 + "_" + layer, weight);
 
           }
 
@@ -432,14 +456,9 @@ public class QP {
    * Counts edge crossings in the model.
    */
   private static void countEdgeCrossings(MLCMGraph mlcmtc, GRBModel model, GRBQuadExpr objective,
-      Map<String, Boolean> weightMap) throws GRBException {
+      Map<String, Double> weightMap) throws GRBException {
 
     List<Integer> layers = mlcmtc.getLayers();
-
-    // Initialize weights
-    double withinCompWeight = 0.1; // Lower cost for crossings within the same component
-    double outsideCompWeight = 1; // Higher cost for crossings outside components or between different
-                                  // components
 
     // Iterate over all pairs of layers except the last layer
     for (int layer : layers.subList(0, layers.size() - 1)) {
@@ -466,8 +485,7 @@ public class QP {
             // Check if the edge is within the same component
             String weightKey = "w_" + groupID1 + "_" + groupID2 + "_" + layer;
 
-            boolean withinComp = weightMap.get(weightKey);
-            double weight = (withinComp) ? withinCompWeight : outsideCompWeight;
+            double weight = weightMap.get(weightKey);
 
             // Find the next layer
             int nextLayer = layers.get(layers.indexOf(layer) + 1);

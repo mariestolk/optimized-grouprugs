@@ -59,7 +59,7 @@ public class ReebGraphOrderingPipeline {
             orderedMGroups.add(new MGOrder(0, mGroup));
             IDToGroupMap.put(0, maximalgroups.iterator().next());
             layers.add(0);
-            
+
             System.out.println("Only 1 maximal group, no need to solve ILP");
             return;
         }

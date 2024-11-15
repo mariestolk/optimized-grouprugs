@@ -1,7 +1,9 @@
 package dbvis.visualsummaries.grouprugs.linearprogram;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import dbvis.visualsummaries.grouprugs.tgs.maximalgroups.MaximalGroup;
 
@@ -18,8 +20,9 @@ public class MLCMVertex {
     List<MLCMVertex> adjList;
     String type;
     MLCMVertex parent;
+    private HashSet<Integer> childrenGroupIds;
 
-    public MLCMVertex(String vertexID, MaximalGroup group, int frame) {
+    public MLCMVertex(String vertexID, int frame) {
         this.vertexID = vertexID; // groupId + "_" + frame
         this.frame = frame;
         this.type = "leaf";
@@ -34,6 +37,7 @@ public class MLCMVertex {
         this.layer = layer;
         this.type = "internal";
         this.parent = null;
+        this.childrenGroupIds = new HashSet<>();
 
         adjList = new ArrayList<MLCMVertex>();
     }
@@ -62,6 +66,18 @@ public class MLCMVertex {
 
     public void setParent(MLCMVertex parent) {
         this.parent = parent;
+    }
+
+    public Set<Integer> getChildGroupIds() {
+        return childrenGroupIds;
+    }
+
+    public void addChildGroupId(int groupId) {
+        childrenGroupIds.add(groupId);
+    }
+
+    public void addChildrenGroupId(Set<Integer> groupIds) {
+        childrenGroupIds.addAll(groupIds);
     }
 
     public Integer getLayer() {

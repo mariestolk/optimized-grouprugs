@@ -86,6 +86,9 @@ public class ReebToMLCM {
                             int groupId = mlcmtc.getGroupToIDMap().get(mg);
                             String vertexID = groupId + "_" + v_e_r.getLayer();
 
+                            // add groupID to the childrenGroupIds set of v_e_r
+                            v_e_r.addChildGroupId(groupId);
+
                             MLCMVertex v_m_r = mlcmtc.getVertexIDToVertexMap().get(vertexID);
                             v_m_r.setParent(v_e_r);
                             mlcmtc.addTreeEdge(v_e_r, v_m_r);
@@ -104,6 +107,11 @@ public class ReebToMLCM {
                 MLCMVertex rho_r = new MLCMVertex(layer);
                 rho_r.type = "root";
                 mlcmtc.addTreeNode(rho_r);
+
+                // Set children to all children group IDs
+                Set<Integer> allChildrenGroupIds = mlcmtc.getIDToGroupMap().keySet();
+                rho_r.addChildrenGroupId(allChildrenGroupIds);
+
                 for (MLCMVertex v : mlcmtc.getTrees()) {
                     if (v.getLayer() == layer && v.getType().equals("internal")) {
                         mlcmtc.addTreeEdge(rho_r, v);

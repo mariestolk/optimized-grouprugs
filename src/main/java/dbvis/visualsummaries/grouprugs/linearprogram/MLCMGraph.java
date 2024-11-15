@@ -140,7 +140,7 @@ public class MLCMGraph {
      * @param group The maximal group of the vertex, this is also its unique id.
      */
     public void addVertex(String vertexID, MaximalGroup mg, int frame) {
-        MLCMVertex v = new MLCMVertex(vertexID, mg, frame);
+        MLCMVertex v = new MLCMVertex(vertexID, frame);
         vertexIDToVertexMap.put(vertexID, v);
         graph.add(v);
     }
